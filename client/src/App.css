@@ -8,6 +8,7 @@
 }
 
 .app-header {
-  padding: 20px;
+  padding: 20px 50px;
   background-color: #eee;
+  border-bottom: solid 6px red;
 }
