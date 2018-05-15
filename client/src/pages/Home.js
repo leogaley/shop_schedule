@@ -3,6 +3,9 @@ import logo from '../images/logo.svg';
 import '../App.css';
 import { Table } from 'reactstrap';
 import axios from 'axios';
+import example from '../data/responseExample'
+
+
 
 class Home extends Component {
 
@@ -399,6 +402,8 @@ class Home extends Component {
           })
       }
 
+      
+
   render() {
     return (
         <div>
@@ -419,11 +424,11 @@ class Home extends Component {
           </tr>
         </thead>
         <tbody>
-            {this.state.data.map((record, i) => (
+            {example.map((record, i) => (
                 <tr key={i}>
                     <td>{record.id}</td>
                     <td>{record.columns.item.name}</td>
-                    <td>{record.columns.displayname}</td>
+                    <td>{decodeURIComponent(record.columns.displayname)}</td>
                     <td>{record.columns.enddate}</td>
                 </tr>
                     ))
