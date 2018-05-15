@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom'
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import Home from "./pages/Home";
 import Cutting from "./pages/Cutting";
 import Machining from "./pages/Machining";
