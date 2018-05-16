@@ -7,8 +7,149 @@
   float: right;
 }
 
+.pull-right {
+  float: right;
+}
+
 .app-header {
-  padding: 20px 50px;
+  padding: 10px 50px;
   background-color: #eee;
   border-bottom: solid 6px red;
+}
+
+.report {
+  padding: 20px;
+}
+
+.sortable {
+  cursor: pointer;
+}
+
+a {
+  cursor: pointer;
+}
+
+.disabled a {
+  cursor: not-allowed;
+}
+
+.filterable-table-container .clear-filter {
+  position: absolute;
+  right: 25px;
+  top: 8px;
+}
+
+.filter-input {
+  border-width: 5px;
+}
+
+.btn-first-page {
+  padding:3px 8px;
+  border: solid 1px #ccc;
+  color: rgb(79, 146, 187);
+  border-radius: 5px 0px 0px 5px;
+}
+
+.btn-first-page:hover {
+  background-color: #eee;
+}
+
+.btn-first-page.disabled {
+  color: #ccc;
+}
+
+.btn-first-page.disabled:hover {
+  background-color: white;
+}
+
+.btn-prev-page {
+  padding:3px 8px;
+  border: solid 1px #ccc;
+  color: rgb(79, 146, 187);
+}
+
+.btn-prev-page:hover {
+  background-color: #eee;
+}
+
+.btn-prev-page.disabled {
+  color: #ccc;
+}
+
+.btn-prev-page.disabled:hover {
+  background-color: white;
+}
+
+.btn-numbered-page {
+  padding:3px 8px;
+  border: solid 1px #ccc;
+  color: rgb(79, 146, 187);
+}
+
+.btn-numbered-page:hover {
+  background-color: #eee
+}
+
+.btn-numbered-page.active{
+  background-color: rgb(79, 146, 187);
+  color: white;
+  border-color: rgb(79, 146, 187);
+}
+
+.btn-prev-more {
+  padding:3px 8px;
+  border: solid 1px #ccc;
+  color: rgb(79, 146, 187);
+}
+
+
+.btn-prev-more:hover {
+  background-color: #eee;
+}
+
+.btn-next-more {
+  padding:3px 8px;
+  border: solid 1px #ccc;
+  color: rgb(79, 146, 187);
+}
+
+.btn-next-more:hover {
+  background-color: #eee
+}
+
+.btn-next-page {
+  padding:3px 8px;
+  border: solid 1px #ccc;
+  color: rgb(79, 146, 187);
+}
+
+.btn-next-page.disabled {
+  color: #ccc;
+}
+
+.btn-next-page:hover {
+  background-color: #eee;
+}
+
+.btn-next-page.disabled:hover {
+  background-color: white;
+}
+
+.btn-last-page {
+  padding:3px 8px;
+  border: solid 1px #ccc;
+  color: rgb(79, 146, 187);
+  border-radius: 0px 5px 5px 0px;
+}
+
+.btn-last-page.disabled {
+  color: #ccc;
+}
+
+.btn-last-page:hover {
+  background-color: #eee;
+}
+
+.btn-last-page.disabled:hover {
+  background-color: white;
 }

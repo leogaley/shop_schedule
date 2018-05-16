@@ -3,7 +3,7 @@ import logo from '../images/logo.svg';
 import '../App.css';
 import { Table } from 'reactstrap';
 import axios from 'axios';
-import example from '../data/responseExample'
+import example from '../data/responseExample';
 
 
 
