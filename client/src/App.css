@@ -153,3 +153,38 @@ a {
 .btn-last-page.disabled:hover {
   background-color: white;
 }
+
+.fa {
+  padding-left: 5px;
+}
+
+.filterable {
+  cursor: pointer;
+}
+
+.exact-filters {
+  margin-top: 10px;
+}
+.filter-item-title {
+  background-color: rgb(79, 146, 187);
+  color: white;
+  border: solid 1px rgb(79, 146, 187);
+  border-radius: 5px 0px 0px 5px;
+  padding: 5px;
+}
+
+.filter-item-value {
+  border: solid 1px #ccc;
+  border-radius: 0px 5px 5px 0px;
+  padding: 5px;
+  margin-right: 5px;
+}
+
+.fa-times {
+  padding-right: 10px;
+  cursor: pointer;
+}
+
+.fa-sort, .fa-sort-desc, .fa-sort-asc {
+  color: #999;
+}
