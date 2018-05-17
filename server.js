@@ -1,4 +1,6 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const routes = require("./routes");
 const path = require("path");
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -7,6 +9,9 @@ const app = express();
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
+
+// Add routes
+app.use(routes);
 
 // Send every request to the React app
 // Define any API routes before this runs

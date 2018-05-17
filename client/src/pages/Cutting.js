@@ -4,19 +4,20 @@ import '../App.css';
 import example from '../data/responseExample';
 import FilterableTable from 'react-filterable-table';
 
-function filteredData() {
+function filteredData(data) {
+    console.log(data);
     let filteredDataObject = [];
-    for (let i = 0; i < example.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         filteredDataObject.push({
-            wo:example[i].id,
-            item:example[i].columns.item.name,
-            desc:example[i].columns.displayname,
-            qty:example[i].columns.quantity,
-            duedate:example[i].columns.enddate,
-            bo:example[i].columns.quantitybackordered,
-            bs:example[i].columns.custbody34.name,
-            iss:example[i].columns.custbody178.name,
-            so:example[i].columns.tranid
+            wo:data[i].id,
+            item:data[i].columns.item.name,
+            desc:data[i].columns.displayname,
+            qty:data[i].columns.quantity,
+            duedate:data[i].columns.enddate,
+            bo:data[i].columns.quantitybackordered,
+            bs:data[i].columns.custbody34.name,
+            iss:data[i].columns.custbody178.name,
+            so:data[i].columns.tranid
             // customer:example[i].columns.entity.name
         });
         // filteredDataObject[i].wo = example[i].id;
@@ -38,8 +39,6 @@ class Cutting extends Component {
     constructor(props){
         super(props);
         this.state = {
-            test: filteredData(),
-            data: filteredData(),
             fields: [
                 { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
                 { name: 'item', displayName: "Item", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
@@ -54,7 +53,28 @@ class Cutting extends Component {
         }
     }
 
-      
+    componentDidMount() {
+        fetch("/netsuite")
+          .then(res => res.json())
+          .then(
+            (result) => {
+              this.setState({
+                isLoaded: true,
+                items: result.items
+              });
+              console.log("test: "+result.items);
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            (error) => {
+              this.setState({
+                isLoaded: true,
+                error
+              });
+            }
+          )
+      }  
 
   render() {
     return (
@@ -69,8 +89,9 @@ class Cutting extends Component {
             <div className="report">
             <FilterableTable
                 namespace="Cutting"
-                initialSort="id"
-                data={this.state.data}
+                initialSort="id"                
+                dataEndpoint="/netsuite"
+                onDataReceived={filteredData}
                 fields={this.state.fields}
                 noRecordsMessage="There are no records to display"
                 noFilteredRecordsMessage="No records match your filters!"
