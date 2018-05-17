@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from '../images/logo.svg';
 import '../App.css';
-import example from '../data/responseExample';
+// import example from '../data/responseExample';
 import FilterableTable from 'react-filterable-table';
 
 function filteredData(data) {
