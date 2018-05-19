@@ -4,6 +4,7 @@ import '../App.css';
 import FilterableTable from 'react-filterable-table';
 import ReactInterval from 'react-interval';
 import Timestamp from 'react-timestamp';
+const FieldRenders = require('./FieldRenders.js');
 
 
 
@@ -14,14 +15,14 @@ class Packing extends Component {
         this.state = {
             data: [],
             fields: [
-                { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
+                { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---", render: FieldRenders.wo },
                 { name: 'item', displayName: "Item", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'desc', displayName: "Description", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
-                { name: 'note', displayName: "", inputFilterable: true, exactFilterable: true, sortable: false },
-                { name: 'icons', displayName: "*SH Here?", inputFilterable: true, exactFilterable: true, sortable: false },
+                { name: 'note', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.note },
+                { name: 'icons', displayName: "*SH Here?", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.icon },
                 { name: 'qty', displayName: "Quantity", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---" },
                 { name: 'duedate', displayName: "Due Date", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
-                { name: 'bo', displayName: "BO", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
+                { name: 'bo', displayName: "BO", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---" },
                 { name: 'bs', displayName: "Build Status", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'iss', displayName: "In Shop Status", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" }
                 // { name: 'so', displayName: "SO#", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" }
@@ -102,16 +103,30 @@ class Packing extends Component {
               let filteredDataObject = [];
 
               for (let i = 0; i < result.length; i++) {
+
+                    let iconCode = "";
+
+                    if (result[i].columns.custbody162.name === "yes"){
+                        iconCode += "a";
+                    }
+                    if (result[i].columns.custbody32 === true){
+                        iconCode += "b";
+                    }
+                    if (result[i].columns.custbody144 === true){
+                        iconCode += "c";
+                    }
+
                   filteredDataObject.push({
-                      wo:result[i].id,
-                      item:result[i].columns.item.name,
-                      desc:result[i].columns.displayname,
-                      qty:result[i].columns.quantity,
-                      duedate:result[i].columns.enddate,
-                      bo:result[i].columns.quantitybackordered,
-                      bs:result[i].columns.custbody34.name,
-                      iss:result[i].columns.custbody178.name,
-                      so:result[i].columns.tranid
+                    wo:result[i].columns.tranid,
+                    item:result[i].columns.item.name,
+                    desc:result[i].columns.displayname,
+                    note:result[i].columns.memo,
+                    icons:iconCode,
+                    qty:result[i].columns.formulanumeric,
+                    duedate:result[i].columns.enddate,
+                    bo:result[i].columns.quantitybackordered,
+                    bs:result[i].columns.custbody34.name,
+                    iss:result[i].columns.custbody178.name,
                   });
                 
               };
@@ -140,8 +155,7 @@ class Packing extends Component {
             </div>
             <div className="report">
             <FilterableTable
-                namespace="Cutting"
-                initialSort="id"                
+                namespace="Packing"               
                 data={this.state.data}
                 fields={this.state.fields}
                 noRecordsMessage="There are no records to display"

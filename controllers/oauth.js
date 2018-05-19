@@ -96,7 +96,7 @@ function getAll(req, res) {
     }, function(error, response, body) {
       // Process your data here
       console.log("Data Received!!!!!");
-      // console.log(body);
+      console.log(body);
       
       
       // let filteredDataObject = [];
@@ -143,7 +143,7 @@ function getAll(req, res) {
     }, function(error, response, body) {
       // Process your data here
       console.log("Data Received!!!!!");
-      // console.log(body);
+      console.log(body);
       res.send(body);
     });
   }

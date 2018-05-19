@@ -188,3 +188,29 @@ a {
 .fa-sort, .fa-sort-desc, .fa-sort-asc {
   color: #999;
 }
+
+.late {
+  color: red;
+  font-weight: bold;
+}
+
+.late a {
+  color: red;
+  font-weight: bold;
+}
+
+.fa-calendar {
+  color: orangered;
+}
+
+.fa-camera {
+  color: blue;
+}
+
+.fa-sticky-note {
+  color: #666;
+}
+
+.fa-check {
+  color: green;
+}
