@@ -14,15 +14,17 @@ class Packing extends Component {
         this.state = {
             data: [],
             fields: [
-                { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
-                { name: 'item', displayName: "Item", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
-                { name: 'desc', displayName: "Description", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
-                { name: 'qty', displayName: "Quantity", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
-                { name: 'duedate', displayName: "Due Date", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
-                { name: 'bo', displayName: "BO", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
-                { name: 'bs', displayName: "Build Status", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
-                { name: 'iss', displayName: "In Shop Status", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" },
-                { name: 'so', displayName: "SO#", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" }
+                { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
+                { name: 'item', displayName: "Item", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
+                { name: 'desc', displayName: "Description", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
+                { name: 'note', displayName: "", inputFilterable: true, exactFilterable: true, sortable: false },
+                { name: 'icons', displayName: "*SH Here?", inputFilterable: true, exactFilterable: true, sortable: false },
+                { name: 'qty', displayName: "Quantity", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---" },
+                { name: 'duedate', displayName: "Due Date", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
+                { name: 'bo', displayName: "BO", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
+                { name: 'bs', displayName: "Build Status", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
+                { name: 'iss', displayName: "In Shop Status", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" }
+                // { name: 'so', displayName: "SO#", inputFilterable: true, exactFilterable: true, sortable: true, emptyDisplay: "---" }
             ]
         }
     }
@@ -37,16 +39,37 @@ class Packing extends Component {
               let filteredDataObject = [];
 
               for (let i = 0; i < result.length; i++) {
+
+                    // let cust = result[i].columns.entity.name;
+
+                    // if (!result[i].columns.entity.name){
+                    //     let cust = "";
+                    // }
+
+                    let iconCode = "";
+
+                    if (result[i].columns.custbody162.name === "yes"){
+                        iconCode += "a";
+                    }
+                    if (result[i].columns.custbody32 === true){
+                        iconCode += "b";
+                    }
+                    if (result[i].columns.custbody144 === true){
+                        iconCode += "c";
+                    }
+
                   filteredDataObject.push({
-                      wo:result[i].id,
-                      item:result[i].columns.item.name,
-                      desc:result[i].columns.displayname,
-                      qty:result[i].columns.quantity,
-                      duedate:result[i].columns.enddate,
-                      bo:result[i].columns.quantitybackordered,
-                      bs:result[i].columns.custbody34.name,
-                      iss:result[i].columns.custbody178.name,
-                      so:result[i].columns.tranid
+                    wo:result[i].columns.tranid,
+                    item:result[i].columns.item.name,
+                    desc:result[i].columns.displayname,
+                    note:result[i].columns.memo,
+                    icons:iconCode,
+                    qty:result[i].columns.formulanumeric,
+                    duedate:result[i].columns.enddate,
+                    bo:result[i].columns.quantitybackordered,
+                    bs:result[i].columns.custbody34.name,
+                    iss:result[i].columns.custbody178.name,
+                    // cust:(result[i].columns.entity.name ? result[i].columns.entity.name : "")
                   });
                 
               };
