@@ -1,3 +1,11 @@
+// import { Button } from 'reactstrap';
+
+// const Button = require('reactstrap').Button;
+// const Modal = require('reactstrap').Modal;
+// const ModalBody = require('reactstrap').ModalBody;
+// const ModalFooter = require('reactstrap').ModalFooter;
+// const ModalHeader = require('reactstrap').ModalHeader;
+
 const React = require('react');
 
 const checkMessage = "ALL Custom Materials Here";
@@ -28,13 +36,38 @@ function dateCalc(d) {
     
 }
 
-module.exports = {
+// function toggle() {
+//     this.setState({
+//       modal: true
+//     });
+//   }
+
+const fieldRenders = {
+	// wobutton: function(props) {
+    //     const currentUrl = window.location.href;
+    //     const pageId = currentUrl.slice(-1);
+    //     console.log("pageID:" + pageId);
+    //     switch (pageId) {
+    //         case '3':
+    //             if (props.record.iss === "Assembly (Stock)"){
+    //                 return (
+    //                     <Button title="Mark Step Complete" color="warning" ><span className="fa fa-arrow-left"></span></Button>
+    //                 )
+    //             } else {
+    //                 return props.value;
+    //             }
+        
+    //         default:
+    //             return props.value;
+    //     }
+        
+	// },
 	wo: function(props) {
         const dateDiff = dateCalc(props.record.duedate);
 
         if (dateDiff > 0) {
             return (
-                <span className="late" title={"Open Work Order -> LATE!"}>
+                <span className="late" title="Open Work Order -> LATE!">
                 <a href="#">{props.value}</a>
                 </span>
             );
@@ -159,3 +192,9 @@ module.exports = {
 
 	}
 }
+
+module.exports.wobutton = fieldRenders.wobutton;
+module.exports.wo = fieldRenders.wo;
+module.exports.note = fieldRenders.note;
+module.exports.icon = fieldRenders.icon;
+module.exports.date = fieldRenders.date;

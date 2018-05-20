@@ -4,17 +4,28 @@ import '../App.css';
 import FilterableTable from 'react-filterable-table';
 import ReactInterval from 'react-interval';
 import Timestamp from 'react-timestamp';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 const FieldRenders = require('./FieldRenders.js');
 
-
+// const woButton = function(status, click, id) {
+//   if (status === "Assembly (Stock)"){
+//       return (
+//           <Button title="Mark Step Complete" color="warning" onClick={click}><span className="fa fa-arrow-left"></span></Button>
+//       )
+//   } else {
+//       return "";
+//   }
+// };
 
 class StockA extends Component {
 
     constructor(props){
         super(props);
         this.state = {
+            modal: false,
             data: [],
             fields: [
+                { name: 'wobutton', displayName: "", inputFilterable: false, exactFilterable: false, sortable: false, emptyDisplay: "", render: FieldRenders.wobutton },
                 { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---", render: FieldRenders.wo },
                 { name: 'item', displayName: "Item", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'desc', displayName: "Description", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
@@ -28,8 +39,23 @@ class StockA extends Component {
                 { name: 'so', displayName: "SO#", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'cust', displayName: "Customer", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" }
             ]
-        }
+        };
+
+        this.handleClick = this.handleClick.bind(this);
+        this.woButton = this.woButton.bind(this);
+        this.toggle = this.toggle.bind(this);
     }
+
+    // const woBoutton = (status) {
+    //   if (status === "Assembly (Stock)"){
+    //       return (
+    //           <Button title="Mark Step Complete" color="warning" onClick={this.toggle}><span className="fa fa-arrow-left"></span></Button>
+    //       )
+    //   } else {
+    //       return "";
+    //   }
+    // }
+
 
     componentDidMount() {
         fetch("/netsuite/1314")
@@ -60,8 +86,15 @@ class StockA extends Component {
                         iconCode += "c";
                     }
 
+                    // if (result[i].columns.custbody178.name === "Assembly (Stock)"){
+                  // const wobutton = "{<Button title='Mark Step Complete' color='warning' onClick={this.toggle}><span className='fa fa-arrow-left'></span></Button>}";
+                    // }
+                    // if (result[i].columns.custbody178.name != "Assembly (Stock)") {
+                    //     const wobutton = "";
+                    // }
 
                   filteredDataObject.push({
+                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, result[i].columns.tranid),
                     wo:result[i].columns.tranid,
                     item:result[i].columns.item.name,
                     desc:result[i].columns.displayname,
@@ -92,6 +125,41 @@ class StockA extends Component {
           )
       }  
 
+    toggle() {
+      this.setState({
+        modal: !this.state.modal
+      });
+    }
+
+    updateWo() {
+      this.setState({
+        modal: !this.state.modal
+      });
+
+      
+    }
+
+    handleClick(id, wo) {
+      this.setState({
+        modal: !this.state.modal,
+        currentWo: wo,
+        currentId: id
+      });
+
+      console.log(this.state.modal);
+    }
+
+    woButton(status, id, wo) {
+      if (status === "Assembly (Stock)"){
+
+          return (
+              <Button title="Mark Step Complete" color="warning" onClick={() => this.handleClick(id, wo)}><span className="fa fa-arrow-left"></span></Button>
+          )
+      } else {
+          return "";
+      }
+    };
+
   render() {
     return (
         <div>
@@ -120,6 +188,7 @@ class StockA extends Component {
                     }
 
                   filteredDataObject.push({
+                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, result[i].columns.tranid),
                     wo:result[i].columns.tranid,
                     item:result[i].columns.item.name,
                     desc:result[i].columns.displayname,
@@ -167,6 +236,16 @@ class StockA extends Component {
                 noFilteredRecordsMessage="No records match your filters!"
             />
             </div>
+            <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+              <ModalHeader toggle={this.toggle}>Verification</ModalHeader>
+              <ModalBody>
+                Are you sure you want to update status of WO# {this.state.currentWo}?
+              </ModalBody>
+              <ModalFooter>
+                <Button color="primary" onClick={this.toggle}>Update Status</Button>{' '}
+                <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+              </ModalFooter>
+            </Modal>
         </div>
     );
   }

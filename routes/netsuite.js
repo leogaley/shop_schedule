@@ -9,11 +9,11 @@ const netsuiteController = require("../controllers/oauth.js");
 router
   .route("/")
   .get(netsuiteController.getAll)
+  .post(netsuiteController.update)
 
 // Matches with "/netsuite/:id"
 router
   .route("/:id")
   .get(netsuiteController.getDept)
-  // .put(netsuiteController.update)
 
 module.exports = router;
