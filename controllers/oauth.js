@@ -79,6 +79,8 @@ const request_data = {
   method: 'GET'
   //data: { status: 'Hello Ladies + Gentlemen, a signed OAuth request!' }
 };
+
+
    
 // Note: The token is optional for some requests
 const token = {
@@ -96,7 +98,7 @@ function getAll(req, res) {
     }, function(error, response, body) {
       // Process your data here
       console.log("Data Received!!!!!");
-      console.log(body);
+      // console.log(body);
       
       
       // let filteredDataObject = [];
@@ -136,18 +138,25 @@ function getAll(req, res) {
 
   function getDept(req, res) {
     console.log ("re.params.id: " + req.params.id);
+
+    const request_data_id = {
+      url: 'https://3429264.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=356&deploy=1&searchid=' + req.params.id,
+      method: 'GET'
+      //data: { status: 'Hello Ladies + Gentlemen, a signed OAuth request!' }
+    };
+    console.log("qqqqq"+request_data_id);
     request({
-      url: request_data.url + '&searchid=' + req.params.id,
-      method: request_data.method,
-      form: request_data.data,
-      headers: oauth.toHeader(oauth.authorize(request_data, token)),
+      url: request_data_id.url,
+      method: request_data_id.method,
+      form: request_data_id.data,
+      headers: oauth.toHeader(oauth.authorize(request_data_id, token)),
     }, function(error, response, body) {
       // Process your data here
       if (error){
         console.log(error);
       }
       console.log("Data Received!!!!!");
-      console.log(body);
+      // console.log(body);
       res.send(body);
     });
   }
