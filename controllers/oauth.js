@@ -135,13 +135,17 @@ function getAll(req, res) {
   }
 
   function getDept(req, res) {
+    console.log ("re.params.id: " + req.params.id);
     request({
-      url: request_data.url + "/" + req.params.id,
+      url: request_data.url + '&searchid=' + req.params.id,
       method: request_data.method,
       form: request_data.data,
-      headers: oauth.toHeader(oauth.authorize(request_data, token))
+      headers: oauth.toHeader(oauth.authorize(request_data, token)),
     }, function(error, response, body) {
       // Process your data here
+      if (error){
+        console.log(error);
+      }
       console.log("Data Received!!!!!");
       console.log(body);
       res.send(body);

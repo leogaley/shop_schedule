@@ -11,9 +11,9 @@ router
   .get(netsuiteController.getAll)
 
 // Matches with "/netsuite/:id"
-// router
-//   .route("/:id")
-//   .get(netsuiteController.findById)
-//   .put(netsuiteController.update)
+router
+  .route("/:id")
+  .get(netsuiteController.getDept)
+  // .put(netsuiteController.update)
 
 module.exports = router;
