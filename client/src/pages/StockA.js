@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import logo from '../images/logo.svg';
 import '../App.css';
 import FilterableTable from 'react-filterable-table';
@@ -44,6 +45,7 @@ class StockA extends Component {
         this.handleClick = this.handleClick.bind(this);
         this.woButton = this.woButton.bind(this);
         this.toggle = this.toggle.bind(this);
+        this.updateWo = this.updateWo.bind(this);
     }
 
     // const woBoutton = (status) {
@@ -86,6 +88,10 @@ class StockA extends Component {
                         iconCode += "c";
                     }
 
+                    let woNumber = result[i].columns.transactionname.substring(12);
+
+                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
+
                     // if (result[i].columns.custbody178.name === "Assembly (Stock)"){
                   // const wobutton = "{<Button title='Mark Step Complete' color='warning' onClick={this.toggle}><span className='fa fa-arrow-left'></span></Button>}";
                     // }
@@ -94,8 +100,8 @@ class StockA extends Component {
                     // }
 
                   filteredDataObject.push({
-                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, result[i].columns.tranid),
-                    wo:result[i].columns.tranid,
+                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, woNumber),
+                    wo:woNumber,
                     item:result[i].columns.item.name,
                     desc:result[i].columns.displayname,
                     note:result[i].columns.memo,
@@ -105,7 +111,7 @@ class StockA extends Component {
                     bo:result[i].columns.quantitybackordered,
                     bs:result[i].columns.custbody34.name,
                     iss:result[i].columns.custbody178.name,
-                    so:result[i].columns.tranid,
+                    so:soNumber,
                     cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
                   });
                 
@@ -132,11 +138,40 @@ class StockA extends Component {
     }
 
     updateWo() {
-      this.setState({
-        modal: !this.state.modal
-      });
+      // let currentComponent = this;
+        axios({
+            method: 'post',
+            url: '/netsuite',
+            data: {
+              id: this.state.currentId,
+              field: "custbody170"
+            }
+          })
+          .then(function (response) {
+            console.log(response);
+            window.location.reload();
+            // currentComponent.setState({
+            //   modal: false
+            // });
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
 
-      
+        // Axios.post('/netsuite', { 
+        //     "workorders":[
+        //     {"id":this.state.currentId,"field":"custbody77"}
+        //     ]})
+        //   .then(function (response) {
+        //     console.log(response);
+        //     this.setState({
+        //         modal: !this.state.modal
+        //       });
+        //   })
+        //   .catch(function (error) {
+        //     console.log(error);
+        //   });  
+       
     }
 
     handleClick(id, wo) {
@@ -145,15 +180,13 @@ class StockA extends Component {
         currentWo: wo,
         currentId: id
       });
-
-      console.log(this.state.modal);
     }
 
     woButton(status, id, wo) {
       if (status === "Assembly (Stock)"){
 
           return (
-              <Button title="Mark Step Complete" color="warning" onClick={() => this.handleClick(id, wo)}><span className="fa fa-arrow-left"></span></Button>
+              <Button title="Mark Step Complete" size="sm" color="warning" onClick={() => this.handleClick(id, wo)}><span className="fa fa-arrow-left"></span></Button>
           )
       } else {
           return "";
@@ -187,9 +220,13 @@ class StockA extends Component {
                         iconCode += "c";
                     }
 
+                    let woNumber = result[i].columns.transactionname.substring(12);
+
+                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
+
                   filteredDataObject.push({
-                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, result[i].columns.tranid),
-                    wo:result[i].columns.tranid,
+                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, woNumber),
+                    wo:woNumber,
                     item:result[i].columns.item.name,
                     desc:result[i].columns.displayname,
                     note:result[i].columns.memo,
@@ -199,7 +236,7 @@ class StockA extends Component {
                     bo:result[i].columns.quantitybackordered,
                     bs:result[i].columns.custbody34.name,
                     iss:result[i].columns.custbody178.name,
-                    so:result[i].columns.tranid,
+                    so:soNumber,
                     cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
                   });
                 
@@ -229,11 +266,14 @@ class StockA extends Component {
             </div>
             <div className="report">
             <FilterableTable
-                namespace="Packing"               
-                data={this.state.data}
-                fields={this.state.fields}
-                noRecordsMessage="There are no records to display"
-                noFilteredRecordsMessage="No records match your filters!"
+              data={this.state.data}
+              fields={this.state.fields}
+              noRecordsMessage="There are no records to display"
+              noFilteredRecordsMessage="No records match your filters!"
+              loadingMessage="Loading Data..."
+              pagersVisible={false}
+              pageSize={10000}
+              pageSizes={null}
             />
             </div>
             <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
@@ -242,7 +282,7 @@ class StockA extends Component {
                 Are you sure you want to update status of WO# {this.state.currentWo}?
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onClick={this.toggle}>Update Status</Button>{' '}
+                <Button color="primary" onClick={this.updateWo}>Update Status</Button>{' '}
                 <Button color="secondary" onClick={this.toggle}>Cancel</Button>
               </ModalFooter>
             </Modal>

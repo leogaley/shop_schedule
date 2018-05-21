@@ -161,19 +161,25 @@ function getAll(req, res) {
     });
   }
 
+
   function update(req, res) {
     const request_data_post = {
       url: 'https://3429264.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=356&deploy=1',
       method: 'POST'
       //data: { status: 'Hello Ladies + Gentlemen, a signed OAuth request!' }
     };
-    console.log("request body id:"+req.body);
+    console.log("request body id:"+req.body.id);
+    const body = { workorders:[
+      {id:req.body.id, field:req.body.field}
+      ]
+    };
     request({
       url: request_data_post.url,
       method: request_data_post.method,
       form: request_data_post.data,
       headers: oauth.toHeader(oauth.authorize(request_data_post, token)),
-      body: req.body
+      body: body,
+      json: true
     }, function(error, response, body) {
       // Process your data here
       if (error){

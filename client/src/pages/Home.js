@@ -60,9 +60,13 @@ class Home extends Component {
                         iconCode += "c";
                     }
 
+                    let woNumber = result[i].columns.transactionname.substring(12);
+
+                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
+
 
                   filteredDataObject.push({
-                    wo:result[i].columns.tranid,
+                    wo:woNumber,
                     item:result[i].columns.item.name,
                     desc:result[i].columns.displayname,
                     note:result[i].columns.memo,
@@ -72,7 +76,7 @@ class Home extends Component {
                     bo:result[i].columns.quantitybackordered,
                     bs:result[i].columns.custbody34.name,
                     iss:result[i].columns.custbody178.name,
-                    so:result[i].columns.tranid,
+                    so:soNumber,
                     cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
                   });
                 
@@ -160,11 +164,14 @@ class Home extends Component {
             </div>
             <div className="report">
             <FilterableTable
-                namespace="Packing"               
-                data={this.state.data}
-                fields={this.state.fields}
-                noRecordsMessage="There are no records to display"
-                noFilteredRecordsMessage="No records match your filters!"
+            data={this.state.data}
+            fields={this.state.fields}
+            noRecordsMessage="There are no records to display"
+            noFilteredRecordsMessage="No records match your filters!"
+            loadingMessage="Loading Data..."
+            pagersVisible={false}
+            pageSize={10000}
+            pageSizes={null}
             />
             </div>
         </div>

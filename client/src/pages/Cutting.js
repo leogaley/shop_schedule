@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Axios from 'axios';
+import axios from 'axios';
 import logo from '../images/logo.svg';
 import '../App.css';
 import FilterableTable from 'react-filterable-table';
@@ -88,6 +88,10 @@ class Cutting extends Component {
                         iconCode += "c";
                     }
 
+                    let woNumber = result[i].columns.transactionname.substring(12);
+
+                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
+
                     // if (result[i].columns.custbody178.name === "Assembly (Stock)"){
                   // const wobutton = "{<Button title='Mark Step Complete' color='warning' onClick={this.toggle}><span className='fa fa-arrow-left'></span></Button>}";
                     // }
@@ -96,8 +100,8 @@ class Cutting extends Component {
                     // }
 
                   filteredDataObject.push({
-                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, result[i].columns.tranid),
-                    wo:result[i].columns.tranid,
+                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, woNumber),
+                    wo:woNumber,
                     item:result[i].columns.item.name,
                     desc:result[i].columns.displayname,
                     note:result[i].columns.memo,
@@ -107,7 +111,7 @@ class Cutting extends Component {
                     bo:result[i].columns.quantitybackordered,
                     bs:result[i].columns.custbody34.name,
                     iss:result[i].columns.custbody178.name,
-                    so:result[i].columns.tranid,
+                    so:soNumber,
                     cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
                   });
                 
@@ -134,19 +138,35 @@ class Cutting extends Component {
     }
 
     updateWo() {
-        Axios.post('/netsuite', { 
-            "workorders":[
-            {"id":this.state.currentId,"field":"custbody77"}
-            ]})
+        axios({
+            method: 'post',
+            url: '/netsuite',
+            data: {
+              id: this.state.currentId,
+              field: "custbody77"
+            }
+          })
           .then(function (response) {
             console.log(response);
-            this.setState({
-                modal: !this.state.modal
-              });
+            window.location.reload();
           })
           .catch(function (error) {
             console.log(error);
-          });  
+          });
+
+        // Axios.post('/netsuite', { 
+        //     "workorders":[
+        //     {"id":this.state.currentId,"field":"custbody77"}
+        //     ]})
+        //   .then(function (response) {
+        //     console.log(response);
+        //     this.setState({
+        //         modal: !this.state.modal
+        //       });
+        //   })
+        //   .catch(function (error) {
+        //     console.log(error);
+        //   });  
        
     }
 
@@ -164,7 +184,7 @@ class Cutting extends Component {
       if (status === "Cutting/EB"){
 
           return (
-              <Button title="Mark Step Complete" color="warning" onClick={() => this.handleClick(id, wo)}><span className="fa fa-arrow-left"></span></Button>
+              <Button title="Mark Step Complete" size="sm" color="warning" onClick={() => this.handleClick(id, wo)}><span className="fa fa-arrow-left"></span></Button>
           )
       } else {
           return "";
@@ -198,9 +218,13 @@ class Cutting extends Component {
                         iconCode += "c";
                     }
 
+                    let woNumber = result[i].columns.transactionname.substring(12);
+
+                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
+
                   filteredDataObject.push({
-                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, result[i].columns.tranid),
-                    wo:result[i].columns.tranid,
+                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, woNumber),
+                    wo:woNumber,
                     item:result[i].columns.item.name,
                     desc:result[i].columns.displayname,
                     note:result[i].columns.memo,
@@ -210,7 +234,7 @@ class Cutting extends Component {
                     bo:result[i].columns.quantitybackordered,
                     bs:result[i].columns.custbody34.name,
                     iss:result[i].columns.custbody178.name,
-                    so:result[i].columns.tranid,
+                    so:soNumber,
                     cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
                   });
                 
@@ -235,16 +259,19 @@ class Cutting extends Component {
                 <div className="logo-block">
                     <img src={logo} className="main-logo" alt="logo" />
                 </div>
-            <h1 className="display-4">Shop Schedule for Stock Assembly</h1>
+            <h1 className="display-4">Shop Schedule for Cutting</h1>
             <span className="fa fa-clock-o"></span><span> Last Updated: </span><Timestamp time={new Date()} format='time' />
             </div>
             <div className="report">
             <FilterableTable
-                namespace="Packing"               
                 data={this.state.data}
                 fields={this.state.fields}
                 noRecordsMessage="There are no records to display"
                 noFilteredRecordsMessage="No records match your filters!"
+                loadingMessage="Loading Data..."
+                pagersVisible={false}
+                pageSize={10000}
+                pageSizes={null}
             />
             </div>
             <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
