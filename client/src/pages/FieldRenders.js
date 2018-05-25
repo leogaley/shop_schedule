@@ -1,11 +1,3 @@
-// import { Button } from 'reactstrap';
-
-// const Button = require('reactstrap').Button;
-// const Modal = require('reactstrap').Modal;
-// const ModalBody = require('reactstrap').ModalBody;
-// const ModalFooter = require('reactstrap').ModalFooter;
-// const ModalHeader = require('reactstrap').ModalHeader;
-
 const React = require('react');
 
 const checkMessage = "ALL Custom Materials Here";
@@ -36,32 +28,7 @@ function dateCalc(d) {
     
 }
 
-// function toggle() {
-//     this.setState({
-//       modal: true
-//     });
-//   }
-
 const fieldRenders = {
-	// wobutton: function(props) {
-    //     const currentUrl = window.location.href;
-    //     const pageId = currentUrl.slice(-1);
-    //     console.log("pageID:" + pageId);
-    //     switch (pageId) {
-    //         case '3':
-    //             if (props.record.iss === "Assembly (Stock)"){
-    //                 return (
-    //                     <Button title="Mark Step Complete" color="warning" ><span className="fa fa-arrow-left"></span></Button>
-    //                 )
-    //             } else {
-    //                 return props.value;
-    //             }
-        
-    //         default:
-    //             return props.value;
-    //     }
-        
-	// },
 	wo: function(props) {
         const dateDiff = dateCalc(props.record.duedate);
 
@@ -162,21 +129,7 @@ const fieldRenders = {
         }
     },
     date: function(props) {
-        // const dateArray = props.value.split("/");
-        // let fixedDateArray = [];
-        // dateArray.forEach(element => {
-        //     if (element.length < 2){
-        //         fixedDateArray.push("0" + element);
-        //     } else {
-        //         fixedDateArray.push(element);
-        //     }
-        // });
 
-        // const dateString = fixedDateArray.join("/");
-
-        // const updated = new Date(dateString);
-
-        // var dateDiff = Date.now()-updated;
         const dateDiff = dateCalc(props.value);
 
         if (dateDiff > 0) {

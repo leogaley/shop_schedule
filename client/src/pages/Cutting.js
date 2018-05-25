@@ -8,15 +8,63 @@ import Timestamp from 'react-timestamp';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 const FieldRenders = require('./FieldRenders.js');
 
-// const woButton = function(status, click, id) {
-//   if (status === "Assembly (Stock)"){
-//       return (
-//           <Button title="Mark Step Complete" color="warning" onClick={click}><span className="fa fa-arrow-left"></span></Button>
-//       )
-//   } else {
-//       return "";
-//   }
-// };
+function dataMapping(data, click, clickWO) {
+
+    let filteredDataObject = [];
+
+    for (let i = 0; i < data.length; i++) {
+
+        let iconCode = "";
+
+        if (data[i].columns.custbody162.name === "Yes"){
+            iconCode += "a";
+        }
+        if (data[i].columns.custbody32 === true){
+            iconCode += "b";
+        }
+        if (data[i].columns.custbody144 === true){
+            iconCode += "c";
+        }
+
+        let woNumber = data[i].columns.transactionname.substring(12);
+
+        let soNumber = (data[i].columns.hasOwnProperty('createdfrom') ? data[i].columns.createdfrom.name.substring(13) : "");
+
+        filteredDataObject.push({
+        wobutton:woButton(data[i].columns.custbody178.name, data[i].id, woNumber, click),
+        wo:workOrderLink(data[i].id, woNumber, clickWO),
+        item:data[i].columns.item.name,
+        desc:data[i].columns.displayname,
+        note:data[i].columns.memo,
+        icons:iconCode,
+        qty:data[i].columns.quantity,
+        duedate:data[i].columns.enddate,
+        bo:data[i].columns.quantitybackordered,
+        bs:data[i].columns.custbody34.name,
+        iss:data[i].columns.custbody178.name,
+        so:soNumber,
+        cust:(data[i].columns.hasOwnProperty('companyname') ? data[i].columns.companyname : "")
+        });
+}
+return filteredDataObject;
+}
+
+function woButton(woStatus, id, wo, click) {
+    if (woStatus === "Cutting/EB"){
+
+        return (
+            <Button title="Mark Step Complete" size="sm" color="warning" onClick={() => click(id, wo)}>{<span className="fa fa-arrow-left"></span>}</Button>
+        )
+    } else {
+        return "";
+    }
+  };
+
+function workOrderLink(id, wo, clickWO) {
+    return (
+        <Button title="View Detail" color="link" onClick={() => clickWO(id, wo)}><span className="wolink">{wo}</span></Button>
+    )
+};
 
 class Cutting extends Component {
 
@@ -24,10 +72,11 @@ class Cutting extends Component {
         super(props);
         this.state = {
             modal: false,
+            modal_wo: false,
             data: [],
             fields: [
-                { name: 'wobutton', displayName: "", inputFilterable: false, exactFilterable: false, sortable: false, emptyDisplay: "", render: FieldRenders.wobutton },
-                { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---", render: FieldRenders.wo },
+                { name: 'wobutton', displayName: "", inputFilterable: false, exactFilterable: false, sortable: false, emptyDisplay: "" },
+                { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---" },
                 { name: 'item', displayName: "Item", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'desc', displayName: "Description", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'note', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.note },
@@ -43,20 +92,15 @@ class Cutting extends Component {
         };
 
         this.handleClick = this.handleClick.bind(this);
-        this.woButton = this.woButton.bind(this);
+        this.handleClickWO = this.handleClickWO.bind(this);
+        // this.woButton = this.woButton.bind(this);
         this.toggle = this.toggle.bind(this);
+        this.toggleWO = this.toggleWO.bind(this);
         this.updateWo = this.updateWo.bind(this);
+        this.toggleWO = this.toggleWO.bind(this);
     }
 
-    // const woBoutton = (status) {
-    //   if (status === "Assembly (Stock)"){
-    //       return (
-    //           <Button title="Mark Step Complete" color="warning" onClick={this.toggle}><span className="fa fa-arrow-left"></span></Button>
-    //       )
-    //   } else {
-    //       return "";
-    //   }
-    // }
+
 
 
     componentDidMount() {
@@ -64,61 +108,9 @@ class Cutting extends Component {
           .then(res => res.json())
           .then(
             (result) => {
-              // console.log("test: "+JSON.stringify(result));
 
-              let filteredDataObject = [];
-
-              for (let i = 0; i < result.length; i++) {
-
-                    // let cust = result[i].columns.entity.name;
-
-                    // if (!result[i].columns.entity.name){
-                    //     let cust = "";
-                    // }
-
-                    let iconCode = "";
-
-                    if (result[i].columns.custbody162.name === "Yes"){
-                        iconCode += "a";
-                    }
-                    if (result[i].columns.custbody32 === true){
-                        iconCode += "b";
-                    }
-                    if (result[i].columns.custbody144 === true){
-                        iconCode += "c";
-                    }
-
-                    let woNumber = result[i].columns.transactionname.substring(12);
-
-                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
-
-                    // if (result[i].columns.custbody178.name === "Assembly (Stock)"){
-                  // const wobutton = "{<Button title='Mark Step Complete' color='warning' onClick={this.toggle}><span className='fa fa-arrow-left'></span></Button>}";
-                    // }
-                    // if (result[i].columns.custbody178.name != "Assembly (Stock)") {
-                    //     const wobutton = "";
-                    // }
-
-                  filteredDataObject.push({
-                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, woNumber),
-                    wo:woNumber,
-                    item:result[i].columns.item.name,
-                    desc:result[i].columns.displayname,
-                    note:result[i].columns.memo,
-                    icons:iconCode,
-                    qty:result[i].columns.quantity,
-                    duedate:result[i].columns.enddate,
-                    bo:result[i].columns.quantitybackordered,
-                    bs:result[i].columns.custbody34.name,
-                    iss:result[i].columns.custbody178.name,
-                    so:soNumber,
-                    cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
-                  });
-                
-              };
-              // console.log("filtered data:" + JSON.stringify(filteredDataObject));
               this.setState({
-                data: filteredDataObject
+                data: dataMapping(result, this.handleClick, this.handleClickWO)
               })
               
             },
@@ -137,6 +129,12 @@ class Cutting extends Component {
       });
     }
 
+    toggleWO() {
+        this.setState({
+          modal: !this.state.modal_wo
+        });
+      }
+
     updateWo() {
         axios({
             method: 'post',
@@ -152,21 +150,7 @@ class Cutting extends Component {
           })
           .catch(function (error) {
             console.log(error);
-          });
-
-        // Axios.post('/netsuite', { 
-        //     "workorders":[
-        //     {"id":this.state.currentId,"field":"custbody77"}
-        //     ]})
-        //   .then(function (response) {
-        //     console.log(response);
-        //     this.setState({
-        //         modal: !this.state.modal
-        //       });
-        //   })
-        //   .catch(function (error) {
-        //     console.log(error);
-        //   });  
+          }); 
        
     }
 
@@ -176,20 +160,19 @@ class Cutting extends Component {
         currentWo: wo,
         currentId: id
       });
-
-      console.log(this.state.modal);
     }
 
-    woButton(status, id, wo) {
-      if (status === "Cutting/EB"){
-
-          return (
-              <Button title="Mark Step Complete" size="sm" color="warning" onClick={() => this.handleClick(id, wo)}><span className="fa fa-arrow-left"></span></Button>
-          )
-      } else {
-          return "";
+    handleClickWO(id, wo) {
+        this.setState({
+          modal: !this.state.modal_wo,
+          currentWo: wo,
+          currentId: id
+        });
       }
-    };
+
+
+
+
 
   render() {
     return (
@@ -200,48 +183,9 @@ class Cutting extends Component {
           .then(res => res.json())
           .then(
             (result) => {
-              // console.log("test: "+JSON.stringify(result));
-
-              let filteredDataObject = [];
-
-              for (let i = 0; i < result.length; i++) {
-
-                    let iconCode = "";
-
-                    if (result[i].columns.custbody162.name === "Yes"){
-                        iconCode += "a";
-                    }
-                    if (result[i].columns.custbody32 === true){
-                        iconCode += "b";
-                    }
-                    if (result[i].columns.custbody144 === true){
-                        iconCode += "c";
-                    }
-
-                    let woNumber = result[i].columns.transactionname.substring(12);
-
-                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
-
-                  filteredDataObject.push({
-                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, woNumber),
-                    wo:woNumber,
-                    item:result[i].columns.item.name,
-                    desc:result[i].columns.displayname,
-                    note:result[i].columns.memo,
-                    icons:iconCode,
-                    qty:result[i].columns.quantity,
-                    duedate:result[i].columns.enddate,
-                    bo:result[i].columns.quantitybackordered,
-                    bs:result[i].columns.custbody34.name,
-                    iss:result[i].columns.custbody178.name,
-                    so:soNumber,
-                    cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
-                  });
-                
-              };
-              // console.log("filtered data:" + JSON.stringify(filteredDataObject));
+              
               this.setState({
-                data: filteredDataObject
+                data: dataMapping(result, this.handleClick, this.handleClickWO)
               })
               
             },
@@ -282,6 +226,15 @@ class Cutting extends Component {
               <ModalFooter>
                 <Button color="primary" onClick={this.updateWo}>Update Status</Button>{' '}
                 <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+              </ModalFooter>
+            </Modal>
+            <Modal isOpen={this.state.modal_wo} toggle={this.toggleWO}>
+              <ModalHeader toggle={this.toggleWO}>Work Order Detail</ModalHeader>
+              <ModalBody>
+                Test!!!
+              </ModalBody>
+              <ModalFooter>
+                <Button color="secondary" onClick={this.toggleWO}>Cancel</Button>
               </ModalFooter>
             </Modal>
         </div>
