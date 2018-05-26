@@ -62,15 +62,22 @@ function woButton(woStatus, id, wo, click) {
 
 function workOrderLink(id, wo, clickWO) {
     return (
-        <Button title="View Detail" color="link" onClick={() => clickWO(id, wo)}><span className="wolink">{wo}</span></Button>
+        <Button title="View Detail" color="link" className="wolink" onClick={() => clickWO(id, wo)}>{wo}</Button>
     )
 };
+
+// function mapObject(object, callback) {
+//     return Object.keys(object).map(function (key) {
+//       return callback(key, object[key]);
+//     });
+//   }
 
 class Cutting extends Component {
 
     constructor(props){
         super(props);
         this.state = {
+            woDetail: [],
             modal: false,
             modal_wo: false,
             data: [],
@@ -131,7 +138,7 @@ class Cutting extends Component {
 
     toggleWO() {
         this.setState({
-          modal: !this.state.modal_wo
+          modal_wo: !this.state.modal_wo
         });
       }
 
@@ -164,14 +171,45 @@ class Cutting extends Component {
 
     handleClickWO(id, wo) {
         this.setState({
-          modal: !this.state.modal_wo,
+          modal_wo: !this.state.modal_wo,
           currentWo: wo,
           currentId: id
         });
+
+        fetch("/netsuite/wo/" + id)
+          .then(res => res.json())
+          .then(
+            (result) => {
+                console.log("result:::"+JSON.stringify(result.data));
+              this.setState({
+                woDetail: result.data
+              })
+              
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            (error) => {
+              console.log (error);
+            }
+          )
+
       }
 
-
-
+      _renderObject(){
+          console.log("woDetail: "+this.state.woDetail);
+		return Object.entries(this.state.woDetail).map(([key, value], i) => {
+			return (
+				<div key={key}>
+					Item: {value.id} ;
+					Description: {value.description} ;
+                    Quantity: {value.quantity} ;
+                    Bin Location: {value.bin} ;
+                    On Hand Quantity: {value.onhandqty}
+				</div>
+			)
+		})
+	}
 
 
   render() {
@@ -228,10 +266,31 @@ class Cutting extends Component {
                 <Button color="secondary" onClick={this.toggle}>Cancel</Button>
               </ModalFooter>
             </Modal>
-            <Modal isOpen={this.state.modal_wo} toggle={this.toggleWO}>
-              <ModalHeader toggle={this.toggleWO}>Work Order Detail</ModalHeader>
+            <Modal isOpen={this.state.modal_wo} toggle={this.toggleWO} size="lg">
+              <ModalHeader toggle={this.toggleWO}><span className = "wo-header">Detail for WO#{this.state.currentWo}</span></ModalHeader>
               <ModalBody>
-                Test!!!
+                  <div>
+                    
+                            <ul className="wo-list">
+                            {this.state.woDetail.map((detail,i) => ( 
+                                    
+                            <li key={i} className="item-list"><h5 className="item">Item: {detail.item}</h5>{detail.description}
+                                <br />
+                                <br />
+                                <span className="detail-name">Quantity : </span>{detail.quantity}
+                                <br />
+                                <span className="detail-name">Bin : </span>{detail.bin}
+                                <br />
+                                <span className="detail-name">On Hand Quantity : </span>{detail.onhandqty}
+                                <br />
+                                {(detail.custom === "T" ? <span className="custom">CUSTOM</span> : <span className="stock">STOCK</span>)}
+                                <br />
+                                <br />
+                                <br />
+                            </li>
+                            ))}
+                            </ul>
+                    </div>
               </ModalBody>
               <ModalFooter>
                 <Button color="secondary" onClick={this.toggleWO}>Cancel</Button>

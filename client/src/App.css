@@ -214,3 +214,37 @@ a {
 .fa-check {
   color: green;
 }
+
+.wolink {
+  padding-top: 0px;
+  font-weight: bold;
+}
+
+.wo-header {
+  font-weight: bolder;
+  color: orangered;
+}
+
+.item {
+  font-weight: bold;
+}
+
+.detail-name {
+  font-weight: bold;
+  color: #555;
+  font-style: italic;
+}
+
+ul.wo-list {
+	list-style-type: none;
+}
+
+.custom {
+  color: darkred;
+  font-weight: bolder;
+}
+
+.stock {
+  color: darkgreen;
+  font-weight: bolder;
+}
