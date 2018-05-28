@@ -248,3 +248,13 @@ ul.wo-list {
   color: darkgreen;
   font-weight: bolder;
 }
+
+.update-button {
+  margin-right: 20px;
+  font-weight: bold;
+}
+
+.wo-warning {
+  color: darkred;
+  font-weight: bold;
+}

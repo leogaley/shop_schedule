@@ -8,7 +8,7 @@ import Timestamp from 'react-timestamp';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 const FieldRenders = require('./FieldRenders.js');
 
-function dataMapping(data, click, clickWO) {
+function dataMapping(data, clickWO, woButton) {
 
     let filteredDataObject = [];
 
@@ -31,7 +31,7 @@ function dataMapping(data, click, clickWO) {
         let soNumber = (data[i].columns.hasOwnProperty('createdfrom') ? data[i].columns.createdfrom.name.substring(13) : "");
 
         filteredDataObject.push({
-        wobutton:woButton(data[i].columns.custbody178.name, data[i].id, woNumber, click),
+        wobutton:woButton(data[i].columns.custbody178.name, data[i].id, woNumber),
         wo:workOrderLink(data[i].id, woNumber, clickWO),
         item:data[i].columns.item.name,
         desc:data[i].columns.displayname,
@@ -49,16 +49,7 @@ function dataMapping(data, click, clickWO) {
 return filteredDataObject;
 }
 
-function woButton(woStatus, id, wo, click) {
-    if (woStatus === "Cutting/EB"){
 
-        return (
-            <Button title="Mark Step Complete" size="sm" color="warning" onClick={() => click(id, wo)}>{<span className="fa fa-arrow-left"></span>}</Button>
-        )
-    } else {
-        return "";
-    }
-  };
 
 function workOrderLink(id, wo, clickWO) {
     return (
@@ -66,17 +57,14 @@ function workOrderLink(id, wo, clickWO) {
     )
 };
 
-// function mapObject(object, callback) {
-//     return Object.keys(object).map(function (key) {
-//       return callback(key, object[key]);
-//     });
-//   }
 
 class Cutting extends Component {
 
     constructor(props){
         super(props);
         this.state = {
+            selectedIds: [],
+            selectedWos: [],
             woDetail: [],
             modal: false,
             modal_wo: false,
@@ -100,11 +88,12 @@ class Cutting extends Component {
 
         this.handleClick = this.handleClick.bind(this);
         this.handleClickWO = this.handleClickWO.bind(this);
-        // this.woButton = this.woButton.bind(this);
+        this.woButton = this.woButton.bind(this);
         this.toggle = this.toggle.bind(this);
         this.toggleWO = this.toggleWO.bind(this);
         this.updateWo = this.updateWo.bind(this);
         this.toggleWO = this.toggleWO.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
 
@@ -117,7 +106,7 @@ class Cutting extends Component {
             (result) => {
 
               this.setState({
-                data: dataMapping(result, this.handleClick, this.handleClickWO)
+                data: dataMapping(result, this.handleClickWO, this.woButton)
               })
               
             },
@@ -161,11 +150,9 @@ class Cutting extends Component {
        
     }
 
-    handleClick(id, wo) {
+    handleClick(event) {
       this.setState({
-        modal: !this.state.modal,
-        currentWo: wo,
-        currentId: id
+        modal: !this.state.modal
       });
     }
 
@@ -196,20 +183,61 @@ class Cutting extends Component {
 
       }
 
-      _renderObject(){
-          console.log("woDetail: "+this.state.woDetail);
-		return Object.entries(this.state.woDetail).map(([key, value], i) => {
-			return (
-				<div key={key}>
-					Item: {value.id} ;
-					Description: {value.description} ;
-                    Quantity: {value.quantity} ;
-                    Bin Location: {value.bin} ;
-                    On Hand Quantity: {value.onhandqty}
-				</div>
-			)
-		})
-	}
+      handleChange(event) {
+
+        if (this.state[event.target.name] === false) {
+          const newSelectedIds = this.state.selectedIds;
+          const newSelectedWos = this.state.selectedWos;
+
+          newSelectedIds.push(event.target.name);
+          newSelectedWos.push(event.target.value);
+
+          this.setState({SelectedIds: newSelectedIds, SelectedWos: newSelectedWos});
+        } else {
+          const newSelectedIds = this.state.selectedIds;
+          const newSelectedWos = this.state.selectedWos;
+
+          const idIndex = newSelectedIds.indexOf(event.target.name);
+          if (idIndex > -1) {
+            newSelectedIds.splice(idIndex, 1);
+          }
+
+          const woIndex = newSelectedWos.indexOf(event.target.value);
+          if (woIndex > -1) {
+            newSelectedWos.splice(woIndex, 1);
+          }
+
+          this.setState({SelectedIds: newSelectedIds, SelectedWos: newSelectedWos});
+
+        }
+        
+        console.log("id list: " + this.state.selectedIds);
+        console.log("wo list: " + this.state.selectedWos);
+
+        this.setState({
+          [event.target.name]: !this.state[event.target.name]
+        });
+      }
+
+      woButton(woStatus, id, wo) {
+        if (woStatus === "Cutting/EB"){
+          this.setState({
+            [id]:false
+          })
+            return (
+              <input
+                name={id}
+                value={wo}
+                type="checkbox"
+                defaultChecked={this.state[id]}
+                onChange={this.handleChange} />
+            )
+        } else {
+            return "";
+        }
+      }
+
+
 
 
   render() {
@@ -223,7 +251,7 @@ class Cutting extends Component {
             (result) => {
               
               this.setState({
-                data: dataMapping(result, this.handleClick, this.handleClickWO)
+                data: dataMapping(result, this.handleClickWO, this.woButton)
               })
               
             },
@@ -242,6 +270,7 @@ class Cutting extends Component {
                     <img src={logo} className="main-logo" alt="logo" />
                 </div>
             <h1 className="display-4">Shop Schedule for Cutting</h1>
+            <Button title="Mark Step Complete for Selected WO(s)" color="warning" className="update-button" onClick={this.handleClick}>Update Selected</Button>
             <span className="fa fa-clock-o"></span><span> Last Updated: </span><Timestamp time={new Date()} format='time' />
             </div>
             <div className="report">
@@ -257,9 +286,14 @@ class Cutting extends Component {
             />
             </div>
             <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-              <ModalHeader toggle={this.toggle}>Verification</ModalHeader>
+              <ModalHeader toggle={this.toggle}><span className="fa fa-exclamation-circle"></span> Verification</ModalHeader>
               <ModalBody>
-                Are you sure you want to update status of WO# {this.state.currentWo}?
+                <p className="wo-warning">Are you sure you want to update status of these work orders?</p>
+                <ul className="wo-selected">
+                {this.state.selectedWos.map((detail,i) => ( 
+                  <li key={i}>{detail}</li>
+                ))}
+                </ul>
               </ModalBody>
               <ModalFooter>
                 <Button color="primary" onClick={this.updateWo}>Update Status</Button>{' '}
