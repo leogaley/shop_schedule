@@ -1,13 +1,14 @@
 const React = require('react');
 
+// Roll-over messages for icons
 const checkMessage = "ALL Custom Materials Here";
 const dateMessage = "HARD DATE";
 const photoMessage = "Needs Photo(s)";
 
+// Determine if due date is before today
 function dateCalc(d) {
 
     const dateArray = d.split("/");
-
     let fixedDateArray = [];
 
     dateArray.forEach(element => {
@@ -19,35 +20,16 @@ function dateCalc(d) {
     });
 
     const dateString = fixedDateArray.join("/");
-
     const updated = new Date(dateString);
-
-    var dateDiff = Date.now()-updated;
+    const dateDiff = Date.now()-updated;
 
     return dateDiff;
     
 }
 
+// Calculated renders for note, icon, and date fields
 const fieldRenders = {
-	wo: function(props) {
-        const dateDiff = dateCalc(props.record.duedate);
 
-        if (dateDiff > 0) {
-            return (
-                <span className="late" title="Open Work Order -> LATE!">
-                <a href="#">{props.value}</a>
-                </span>
-            );
-        }
-        else {
-            return (
-                <span title={"Open Work Order"}>
-                    <a href="#">{props.value}</a>
-                </span>
-            );
-        }
-		
-	},
 	note: function(props) {
         if (props.value === "" | props.value === undefined | props.value === null){
             return props.value;
@@ -125,7 +107,9 @@ const fieldRenders = {
                             <span className="fa fa-camera"></span>
                         </span>
                     </span>
-                );               
+                );   
+            default:
+                return "";            
         }
     },
     date: function(props) {
@@ -146,8 +130,7 @@ const fieldRenders = {
 	}
 }
 
-module.exports.wobutton = fieldRenders.wobutton;
-module.exports.wo = fieldRenders.wo;
+
 module.exports.note = fieldRenders.note;
 module.exports.icon = fieldRenders.icon;
 module.exports.date = fieldRenders.date;

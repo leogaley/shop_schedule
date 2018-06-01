@@ -3,65 +3,7 @@ const OAuth   = require('oauth-1.0a');
 const crypto  = require('crypto');
 const bodyParser = require("body-parser");
 
-// const mapped  = require('../helpers/mapper.js');
-
-// Function to create icon field
-
-// function icons(check, hd, photo) {
-//   let iconCode = "";
-//   if (check == "yes"){
-//       iconCode += a;
-//   }
-//   if (hd == true){
-//       iconCode += b;
-//   }
-//   if (photo == true){
-//       iconCode += c;
-//   }
-
-//   return iconCode;
-// }
-
-// // Function to map requested data to a more usable format
-
-// function mapper (data) {  
-//   //  console.log ("d:   " + data); 
-//   let filteredDataObject = [];
-
-//   for (let i = 0; i < data.length; i++) {
-
-//       console.log ("map!" + data[i]);
-//       if (data[i].columns.custbody162.name){
-//           let a = data[i].columns.custbody162.name;
-//       } else {let a = "";}
-//       if (data[i].columns.custbody32){
-//           let b = data[i].columns.custbody32;
-//       } else {let a = "";}
-//       if (data[i].columns.custbody162.name){
-//           let c = data[i].columns.custbody144;
-//       } else {let a = "";}
-//       let iconCode = icons(a, b, c);
-//       filteredDataObject.push({
-//           wo:data[i].columns.tranid,
-//           item:data[i].columns.item.name,
-//           desc:data[i].columns.displayname,
-//           note:data[i].columns.memo,
-//           // icons:iconCode,
-//           qty:data[i].columns.formulanumeric,
-//           duedate:data[i].columns.enddate,
-//           bo:data[i].columns.quantitybackordered,
-//           bs:data[i].columns.custbody34.name,
-//           iss:data[i].columns.custbody178.name,
-//           cust:data[i].columns.entity.name
-//       });
-  
-//   };
-
-//   console.log("mapper");
-//   return filteredDataObject;
-// }
-
-
+// Set OAuth variables
 const oauth = OAuth({
   consumer: {
     key: '82bf5f7084dcff6e790390a3021a5b0fa0dac8c2f8c0cfaf7a30eb26c1236060',
@@ -73,7 +15,9 @@ const oauth = OAuth({
     return crypto.createHmac('sha1', key).update(base_string).digest('base64');
   }
 });
-   
+
+
+// Set request data variables for getAll
 const request_data = {
   url: 'https://3429264.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=356&deploy=1',
   method: 'GET'
@@ -97,52 +41,18 @@ function getAll(req, res) {
       headers: oauth.toHeader(oauth.authorize(request_data, token))
     }, function(error, response, body) {
       // Process your data here
-      console.log("Data Received!!!!!");
-      // console.log(body);
-      
-      
-      // let filteredDataObject = [];
-
-      // for (let i = 0; i < body.length; i++) {
-    
-      //     console.log ("map!" + body[i]);
-      //     if (body[i].columns.custbody162.name){
-      //         let a = body[i].columns.custbody162.name;
-      //     } else {let a = "";}
-      //     if (body[i].columns.custbody32){
-      //         let b = body[i].columns.custbody32;
-      //     } else {let a = "";}
-      //     if (body[i].columns.custbody162.name){
-      //         let c = body[i].columns.custbody144;
-      //     } else {let a = "";}
-      //     let iconCode = icons(a, b, c);
-      //     filteredDataObject.push({
-              // wo:body[i].columns.tranid,
-              // item:body[i].columns.item.name,
-              // desc:body[i].columns.displayname,
-              // note:body[i].columns.memo,
-              // // icons:iconCode,
-              // qty:body[i].columns.formulanumeric,
-              // duedate:body[i].columns.enddate,
-              // bo:body[i].columns.quantitybackordered,
-              // bs:body[i].columns.custbody34.name,
-              // iss:body[i].columns.custbody178.name,
-              // cust:body[i].columns.entity.name
-      //     });
-      
-      // };
 
       res.send(body);
     });
   }
 
+  // Function to get data for a specific department
   function getDept(req, res) {
     console.log ("re.params.id: " + req.params.id);
 
     const request_data_id = {
       url: 'https://3429264.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=356&deploy=1&searchid=' + req.params.id,
       method: 'GET'
-      //data: { status: 'Hello Ladies + Gentlemen, a signed OAuth request!' }
     };
     console.log("qqqqq"+request_data_id);
     request({
@@ -155,21 +65,17 @@ function getAll(req, res) {
       if (error){
         console.log(error);
       }
-      console.log("Data Received!!!!!");
-      // console.log(body);
       res.send(body);
     });
   }
 
+  // Function to get work order details
   function getWO(req, res) {
-    console.log ("re.params.id: " + req.params.id);
 
     const request_data_id = {
       url: 'https://3429264.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=356&deploy=1&searchid=2063&workorderid=' + req.params.id,
       method: 'GET'
-      //data: { status: 'Hello Ladies + Gentlemen, a signed OAuth request!' }
     };
-    console.log("wowowo"+request_data_id);
     request({
       url: request_data_id.url,
       method: request_data_id.method,
@@ -186,18 +92,15 @@ function getAll(req, res) {
     });
   }
 
-
+// Function to update work order status(es)
   function update(req, res) {
     const request_data_post = {
       url: 'https://3429264.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=356&deploy=1',
       method: 'POST'
-      //data: { status: 'Hello Ladies + Gentlemen, a signed OAuth request!' }
     };
-    console.log("request body id:"+req.body.id);
-    const body = { workorders:[
-      {id:req.body.id, field:req.body.field}
-      ]
-    };
+
+    const body = { workorders: req.body.workorders};
+
     request({
       url: request_data_post.url,
       method: request_data_post.method,
@@ -210,8 +113,6 @@ function getAll(req, res) {
       if (error){
         console.log(error);
       }
-      console.log("Data Received!!!!!");
-      // console.log(body);
       res.send(body);
     });
   }
