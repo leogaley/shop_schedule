@@ -1,3 +1,4 @@
+// Import dependencies
 import React, { Component } from 'react';
 import axios from 'axios';
 import logo from '../images/logo.svg';
@@ -6,28 +7,77 @@ import FilterableTable from 'react-filterable-table';
 import ReactInterval from 'react-interval';
 import Timestamp from 'react-timestamp';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-const FieldRenders = require('./FieldRenders.js');
+import FieldRenders from './FieldRenders.js';
 
-// const woButton = function(status, click, id) {
-//   if (status === "Assembly (Stock)"){
-//       return (
-//           <Button title="Mark Step Complete" color="warning" onClick={click}><span className="fa fa-arrow-left"></span></Button>
-//       )
-//   } else {
-//       return "";
-//   }
-// };
+// Take imported data and format it for display
+function dataMapping(data, clickWO, woCheckBox) {
+
+    let filteredDataObject = [];
+
+    for (let i = 0; i < data.length; i++) {
+
+        let iconCode = "";
+
+        if (data[i].columns.custbody162.name === "Yes"){
+            iconCode += "a";
+        }
+        if (data[i].columns.custbody32 === true){
+            iconCode += "b";
+        }
+        if (data[i].columns.custbody144 === true){
+            iconCode += "c";
+        }
+
+        let woNumber = data[i].columns.transactionname.substring(12);
+
+        let soNumber = (data[i].columns.hasOwnProperty('createdfrom') ? data[i].columns.createdfrom.name.substring(13) : "");
+
+        filteredDataObject.push({
+        woCheckBox:woCheckBox(data[i].columns.custbody178.name, data[i].id, woNumber),
+        wo:workOrderLink(data[i].id, woNumber, clickWO),
+        item:data[i].columns.item.name,
+        desc:data[i].columns.displayname,
+        note:data[i].columns.memo,
+        icons:iconCode,
+        qty:data[i].columns.quantity,
+        duedate:data[i].columns.enddate,
+        bo:data[i].columns.quantitybackordered,
+        bs:data[i].columns.custbody34.name,
+        iss:data[i].columns.custbody178.name,
+        so:soNumber,
+        cust:(data[i].columns.hasOwnProperty('companyname') ? data[i].columns.companyname : "")
+        });
+}
+return filteredDataObject;
+}
+
+
+// Create work order link for each row
+function workOrderLink(id, wo, clickWO) {
+    return (
+        <Button title="View Detail" color="link" className="wolink" onClick={() => clickWO(id, wo)}>{wo}</Button>
+    )
+};
+
 
 class Machining extends Component {
 
     constructor(props){
         super(props);
         this.state = {
+            reportId: "1313", // edit this to change which report populates the table
+            statusField: "custbody145", // edit this to change which status gets updated
+            scheduleName: "Machining", // edit this to change department name for heading
+            woStatusValue: "Machining", // edit this to change the filter that determines if a checkbox shows up
+            selectedIds: [],
+            selectedWos: [],
+            woDetail: [],
             modal: false,
+            modal_wo: false,
             data: [],
             fields: [
-                { name: 'wobutton', displayName: "", inputFilterable: false, exactFilterable: false, sortable: false, emptyDisplay: "", render: FieldRenders.wobutton },
-                { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---", render: FieldRenders.wo },
+                { name: 'woCheckBox', displayName: "", inputFilterable: false, exactFilterable: false, sortable: false, emptyDisplay: "" },
+                { name: 'wo', displayName: "WO#", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---" },
                 { name: 'item', displayName: "Item", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'desc', displayName: "Description", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'note', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.note },
@@ -43,82 +93,26 @@ class Machining extends Component {
         };
 
         this.handleClick = this.handleClick.bind(this);
-        this.woButton = this.woButton.bind(this);
+        this.handleClickWO = this.handleClickWO.bind(this);
+        this.woCheckBox = this.woCheckBox.bind(this);
         this.toggle = this.toggle.bind(this);
+        this.toggleWO = this.toggleWO.bind(this);
         this.updateWo = this.updateWo.bind(this);
+        this.toggleWO = this.toggleWO.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
-    // const woBoutton = (status) {
-    //   if (status === "Assembly (Stock)"){
-    //       return (
-    //           <Button title="Mark Step Complete" color="warning" onClick={this.toggle}><span className="fa fa-arrow-left"></span></Button>
-    //       )
-    //   } else {
-    //       return "";
-    //   }
-    // }
 
 
+// Initial data pull on page load
     componentDidMount() {
-        fetch("/netsuite/1313")
+        fetch("/netsuite/" + this.state.reportId)
           .then(res => res.json())
           .then(
             (result) => {
-              // console.log("test: "+JSON.stringify(result));
 
-              let filteredDataObject = [];
-
-              for (let i = 0; i < result.length; i++) {
-
-                    // let cust = result[i].columns.entity.name;
-
-                    // if (!result[i].columns.entity.name){
-                    //     let cust = "";
-                    // }
-
-                    let iconCode = "";
-
-                    if (result[i].columns.custbody162.name === "Yes"){
-                        iconCode += "a";
-                    }
-                    if (result[i].columns.custbody32 === true){
-                        iconCode += "b";
-                    }
-                    if (result[i].columns.custbody144 === true){
-                        iconCode += "c";
-                    }
-
-                    let woNumber = result[i].columns.transactionname.substring(12);
-
-                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
-
-                    // if (result[i].columns.custbody178.name === "Assembly (Stock)"){
-                  // const wobutton = "{<Button title='Mark Step Complete' color='warning' onClick={this.toggle}><span className='fa fa-arrow-left'></span></Button>}";
-                    // }
-                    // if (result[i].columns.custbody178.name != "Assembly (Stock)") {
-                    //     const wobutton = "";
-                    // }
-
-                  filteredDataObject.push({
-                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, woNumber),
-                    wo:woNumber,
-                    item:result[i].columns.item.name,
-                    desc:result[i].columns.displayname,
-                    note:result[i].columns.memo,
-                    icons:iconCode,
-                    qty:result[i].columns.quantity,
-                    duedate:result[i].columns.enddate,
-                    bo:result[i].columns.quantitybackordered,
-                    bs:result[i].columns.custbody34.name,
-                    iss:result[i].columns.custbody178.name,
-                    so:soNumber,
-                    cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
-                  });
-                
-              };
-              // console.log("filtered data:" + JSON.stringify(filteredDataObject));
               this.setState({
-                data: filteredDataObject
+                data: dataMapping(result, this.handleClickWO, this.woCheckBox)
               })
               
             },
@@ -131,121 +125,153 @@ class Machining extends Component {
           )
       }  
 
+// Toggle method for work order update modal      
     toggle() {
       this.setState({
         modal: !this.state.modal
       });
     }
 
+// Toggle method for work order detail modal     
+    toggleWO() {
+        this.setState({
+          modal_wo: !this.state.modal_wo
+        });
+      }
+
+// Method to update WO status
     updateWo() {
-      // let currentComponent = this;
+      const woArray =[];
+      for (let i = 0; i < this.state.selectedIds.length; i++) {
+        const element = this.state.selectedIds[i];
+        woArray.push({"id":element,"field":this.state.statusField});        
+      }
         axios({
             method: 'post',
             url: '/netsuite',
-            data: {
-              id: this.state.currentId,
-              field: "custbody145"
-            }
+            data: {"workorders": woArray}
           })
           .then(function (response) {
             console.log(response);
             window.location.reload();
-            // currentComponent.setState({
-            //   modal: false
-            // });
           })
           .catch(function (error) {
             console.log(error);
-          });
-
-        // Axios.post('/netsuite', { 
-        //     "workorders":[
-        //     {"id":this.state.currentId,"field":"custbody77"}
-        //     ]})
-        //   .then(function (response) {
-        //     console.log(response);
-        //     this.setState({
-        //         modal: !this.state.modal
-        //       });
-        //   })
-        //   .catch(function (error) {
-        //     console.log(error);
-        //   });  
+          }); 
        
     }
 
-    handleClick(id, wo) {
+// Method to handle click of update button
+    handleClick(event) {
       this.setState({
-        modal: !this.state.modal,
-        currentWo: wo,
-        currentId: id
+        modal: !this.state.modal
       });
-
-      console.log(this.state.modal);
     }
 
-    woButton(status, id, wo) {
-      if (status === "Machining"){
+//Method to handle WO link click
+    handleClickWO(id, wo) {
 
-          return (
-              <Button title="Mark Step Complete" size="sm" color="warning" onClick={() => this.handleClick(id, wo)}><span className="fa fa-arrow-left"></span></Button>
-          )
-      } else {
-          return "";
+      this.setState({
+        woDetail: [""]
+      })
+
+      fetch("/netsuite/wo/" + id)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            woDetail: result.data
+          })
+          
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        (error) => {
+          console.log (error);
+        }
+      )
+
+        this.setState({
+          modal_wo: !this.state.modal_wo,
+          currentWo: wo,
+          currentId: id
+        });
+
       }
-    };
+
+// Method to handle checkbox states and arrays of selected id's and wo's
+      handleChange(event) {
+
+        const newSelectedIds = this.state.selectedIds;
+        const newSelectedWos = this.state.selectedWos;
+
+        if (this.state[event.target.name] === false) {
+
+          newSelectedIds.push(event.target.name);
+          newSelectedWos.push(event.target.value);
+
+          this.setState({SelectedIds: newSelectedIds, SelectedWos: newSelectedWos});
+
+        } else {
+
+          const idIndex = newSelectedIds.indexOf(event.target.name);
+
+          if (idIndex > -1) {
+            newSelectedIds.splice(idIndex, 1);
+          }
+
+          const woIndex = newSelectedWos.indexOf(event.target.value);
+
+          if (woIndex > -1) {
+            newSelectedWos.splice(woIndex, 1);
+          }
+
+          this.setState({SelectedIds: newSelectedIds, SelectedWos: newSelectedWos});
+
+        }
+
+        this.setState({
+          [event.target.name]: !this.state[event.target.name]
+        });
+
+      }
+
+// Method to create checkboxes for work orders that have the correct in shop status
+      woCheckBox(woStatus, id, wo) {
+        if (woStatus === this.state.woStatusValue){
+          this.setState({
+            [id]:false
+          })
+            return (
+              <input
+                name={id}
+                value={wo}
+                type="checkbox"
+                defaultChecked={this.state[id]}
+                onChange={this.handleChange} />
+            )
+        } else {
+            return "";
+        }
+      }
+
+
+
 
   render() {
     return (
         <div>
+        {/* Reloads data every 10 minutes   */}
         <ReactInterval timeout={600000} enabled={true}
           callback={() => {
-            fetch("/netsuite/1313")
+            fetch("/netsuite/" + this.state.reportId)
           .then(res => res.json())
           .then(
             (result) => {
-              // console.log("test: "+JSON.stringify(result));
-
-              let filteredDataObject = [];
-
-              for (let i = 0; i < result.length; i++) {
-
-                    let iconCode = "";
-
-                    if (result[i].columns.custbody162.name === "Yes"){
-                        iconCode += "a";
-                    }
-                    if (result[i].columns.custbody32 === true){
-                        iconCode += "b";
-                    }
-                    if (result[i].columns.custbody144 === true){
-                        iconCode += "c";
-                    }
-
-                    let woNumber = result[i].columns.transactionname.substring(12);
-
-                    let soNumber = (result[i].columns.hasOwnProperty('createdfrom') ? result[i].columns.createdfrom.name.substring(13) : "");
-
-                  filteredDataObject.push({
-                    wobutton:this.woButton(result[i].columns.custbody178.name, result[i].id, woNumber),
-                    wo:woNumber,
-                    item:result[i].columns.item.name,
-                    desc:result[i].columns.displayname,
-                    note:result[i].columns.memo,
-                    icons:iconCode,
-                    qty:result[i].columns.quantity,
-                    duedate:result[i].columns.enddate,
-                    bo:result[i].columns.quantitybackordered,
-                    bs:result[i].columns.custbody34.name,
-                    iss:result[i].columns.custbody178.name,
-                    so:soNumber,
-                    cust:(result[i].columns.hasOwnProperty('companyname') ? result[i].columns.companyname : "")
-                  });
-                
-              };
-              // console.log("filtered data:" + JSON.stringify(filteredDataObject));
+              
               this.setState({
-                data: filteredDataObject
+                data: dataMapping(result, this.handleClickWO, this.woCheckBox)
               })
               
             },
@@ -263,7 +289,8 @@ class Machining extends Component {
                 <div className="logo-block">
                     <img src={logo} className="main-logo" alt="logo" />
                 </div>
-            <h1 className="display-4">Shop Schedule for Machining</h1>
+            <h1 className="display-4">Shop Schedule for {this.state.scheduleName}</h1>
+            <Button title="Mark Step Complete for Selected WO(s)" color="warning" className="update-button" onClick={this.handleClick}>Update Selected</Button>
             <span className="fa fa-clock-o"></span><span> Last Updated: </span><Timestamp time={new Date()} format='time' />
             </div>
             <div className="report">
@@ -278,16 +305,54 @@ class Machining extends Component {
                 pageSizes={null}
             />
             </div>
+
             <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-              <ModalHeader toggle={this.toggle}>Verification</ModalHeader>
+              <ModalHeader toggle={this.toggle}><span className="fa fa-exclamation-circle"></span> Verification</ModalHeader>
               <ModalBody>
-                Are you sure you want to update status of WO# {this.state.currentWo}?
+                <p className="wo-warning">Are you sure you want to update status of these work orders?</p>
+                <ul className="wo-selected">
+                {this.state.selectedWos.map((detail,i) => ( 
+                  <li key={i}>{detail}</li>
+                ))}
+                </ul>
               </ModalBody>
               <ModalFooter>
                 <Button color="primary" onClick={this.updateWo}>Update Status</Button>{' '}
                 <Button color="secondary" onClick={this.toggle}>Cancel</Button>
               </ModalFooter>
             </Modal>
+
+            <Modal isOpen={this.state.modal_wo} toggle={this.toggleWO} size="lg">
+              <ModalHeader toggle={this.toggleWO}><span className = "wo-header">Detail for WO#{this.state.currentWo}</span></ModalHeader>
+              <ModalBody>
+                  <div>
+                    
+                            <ul className="wo-list">
+                            {this.state.woDetail.map((detail,i) => ( 
+                                    
+                            <li key={i} className="item-list"><h5 className="item">Item: {detail.item}</h5>{detail.description}
+                                <br />
+                                <br />
+                                <span className="detail-name">Quantity : </span>{detail.quantity}
+                                <br />
+                                <span className="detail-name">Bin : </span>{detail.bin}
+                                <br />
+                                <span className="detail-name">On Hand Quantity : </span>{detail.onhandqty}
+                                <br />
+                                {(detail.custom === "T" ? <span className="custom">CUSTOM</span> : <span className="stock">STOCK</span>)}
+                                <br />
+                                <br />
+                                <br />
+                            </li>
+                            ))}
+                            </ul>
+                    </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="secondary" onClick={this.toggleWO}>Close</Button>
+              </ModalFooter>
+            </Modal>
+
         </div>
     );
   }

@@ -16,4 +16,9 @@ router
   .route("/:id")
   .get(netsuiteController.getDept)
 
+// Matches with "/netsuite/wo/:id"
+router
+  .route("/wo/:id")
+  .get(netsuiteController.getWO)
+
 module.exports = router;

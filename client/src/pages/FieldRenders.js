@@ -1,21 +1,14 @@
-// import { Button } from 'reactstrap';
-
-// const Button = require('reactstrap').Button;
-// const Modal = require('reactstrap').Modal;
-// const ModalBody = require('reactstrap').ModalBody;
-// const ModalFooter = require('reactstrap').ModalFooter;
-// const ModalHeader = require('reactstrap').ModalHeader;
-
 const React = require('react');
 
+// Roll-over messages for icons
 const checkMessage = "ALL Custom Materials Here";
 const dateMessage = "HARD DATE";
 const photoMessage = "Needs Photo(s)";
 
+// Determine if due date is before today
 function dateCalc(d) {
 
     const dateArray = d.split("/");
-
     let fixedDateArray = [];
 
     dateArray.forEach(element => {
@@ -27,60 +20,16 @@ function dateCalc(d) {
     });
 
     const dateString = fixedDateArray.join("/");
-
     const updated = new Date(dateString);
-
-    var dateDiff = Date.now()-updated;
+    const dateDiff = Date.now()-updated;
 
     return dateDiff;
     
 }
 
-// function toggle() {
-//     this.setState({
-//       modal: true
-//     });
-//   }
-
+// Calculated renders for note, icon, and date fields
 const fieldRenders = {
-	// wobutton: function(props) {
-    //     const currentUrl = window.location.href;
-    //     const pageId = currentUrl.slice(-1);
-    //     console.log("pageID:" + pageId);
-    //     switch (pageId) {
-    //         case '3':
-    //             if (props.record.iss === "Assembly (Stock)"){
-    //                 return (
-    //                     <Button title="Mark Step Complete" color="warning" ><span className="fa fa-arrow-left"></span></Button>
-    //                 )
-    //             } else {
-    //                 return props.value;
-    //             }
-        
-    //         default:
-    //             return props.value;
-    //     }
-        
-	// },
-	wo: function(props) {
-        const dateDiff = dateCalc(props.record.duedate);
 
-        if (dateDiff > 0) {
-            return (
-                <span className="late" title="Open Work Order -> LATE!">
-                <a href="#">{props.value}</a>
-                </span>
-            );
-        }
-        else {
-            return (
-                <span title={"Open Work Order"}>
-                    <a href="#">{props.value}</a>
-                </span>
-            );
-        }
-		
-	},
 	note: function(props) {
         if (props.value === "" | props.value === undefined | props.value === null){
             return props.value;
@@ -158,25 +107,13 @@ const fieldRenders = {
                             <span className="fa fa-camera"></span>
                         </span>
                     </span>
-                );               
+                );   
+            default:
+                return "";            
         }
     },
     date: function(props) {
-        // const dateArray = props.value.split("/");
-        // let fixedDateArray = [];
-        // dateArray.forEach(element => {
-        //     if (element.length < 2){
-        //         fixedDateArray.push("0" + element);
-        //     } else {
-        //         fixedDateArray.push(element);
-        //     }
-        // });
 
-        // const dateString = fixedDateArray.join("/");
-
-        // const updated = new Date(dateString);
-
-        // var dateDiff = Date.now()-updated;
         const dateDiff = dateCalc(props.value);
 
         if (dateDiff > 0) {
@@ -193,8 +130,7 @@ const fieldRenders = {
 	}
 }
 
-module.exports.wobutton = fieldRenders.wobutton;
-module.exports.wo = fieldRenders.wo;
+
 module.exports.note = fieldRenders.note;
 module.exports.icon = fieldRenders.icon;
 module.exports.date = fieldRenders.date;
