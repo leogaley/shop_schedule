@@ -34,6 +34,7 @@ const token = {
   
 
 function getAll(req, res) {
+    
     request({
       url: request_data.url,
       method: request_data.method,
@@ -41,7 +42,7 @@ function getAll(req, res) {
       headers: oauth.toHeader(oauth.authorize(request_data, token))
     }, function(error, response, body) {
       // Process your data here
-
+      
       res.send(body);
     });
   }

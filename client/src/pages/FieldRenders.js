@@ -40,6 +40,19 @@ const fieldRenders = {
 			</span>
         );
         }
+    },
+    drawing: function(props) {
+        if (props.value === "" | props.value === undefined | props.value === null){
+            console.log('drawing link: ' + props.value);
+            return props.value;
+        } else {
+            console.log('drawing link: ' + props.value);
+		return (
+			<span title={props.value}>
+				<a href={props.value} target="_blank"><span className="fa fa-search-plus"></span></a>
+			</span>
+        );
+        }
 	},
 	icon: function(props) {
 		switch (props.value){
@@ -134,3 +147,4 @@ const fieldRenders = {
 module.exports.note = fieldRenders.note;
 module.exports.icon = fieldRenders.icon;
 module.exports.date = fieldRenders.date;
+module.exports.drawing = fieldRenders.drawing;

@@ -6,7 +6,7 @@ import '../App.css';
 import FilterableTable from 'react-filterable-table';
 import ReactInterval from 'react-interval';
 import Timestamp from 'react-timestamp';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Form, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import FieldRenders from './FieldRenders.js';
 
 // Take imported data and format it for display
@@ -33,7 +33,7 @@ function dataMapping(data, clickWO, woCheckBox) {
         let soNumber = (data[i].columns.hasOwnProperty('createdfrom') ? data[i].columns.createdfrom.name.substring(13) : "");
 
         filteredDataObject.push({
-        woCheckBox:woCheckBox(data[i].columns.custbody178.name, data[i].id, woNumber),
+        woCheckBox:woCheckBox(data[i].columns.custbody178.name, data[i].id, woNumber,data[i].columns.item.name, data[i].columns.quantity),
         wo:workOrderLink(data[i].id, woNumber, clickWO),
         item:data[i].columns.item.name,
         desc:data[i].columns.displayname,
@@ -106,6 +106,7 @@ class StockA extends Component {
 
 // Initial data pull on page load
     componentDidMount() {
+        document.body.style.cursor = 'wait';
         fetch("/netsuite/" + this.state.reportId)
           .then(res => res.json())
           .then(
@@ -114,7 +115,7 @@ class StockA extends Component {
               this.setState({
                 data: dataMapping(result, this.handleClickWO, this.woCheckBox)
               })
-              
+              document.body.style.cursor = 'default';
             },
             // Note: it's important to handle errors here
             // instead of a catch() block so that we don't swallow
@@ -123,7 +124,17 @@ class StockA extends Component {
               console.log (error);
             }
           )
-      }  
+      } 
+      
+    getSnapshotBeforeUpdate() {
+        document.body.style.cursor = 'wait';
+        return null;
+      
+    }
+
+    componentDidUpdate() {
+      document.body.style.cursor = 'default';
+    }
 
 // Toggle method for work order update modal      
     toggle() {
@@ -141,6 +152,7 @@ class StockA extends Component {
 
 // Method to update WO status
     updateWo() {
+      document.body.style.cursor = 'wait';
       const woArray =[];
       for (let i = 0; i < this.state.selectedIds.length; i++) {
         const element = this.state.selectedIds[i];
@@ -163,6 +175,7 @@ class StockA extends Component {
 
 // Method to handle click of update button
     handleClick(event) {
+      event.preventDefault();
       this.setState({
         modal: !this.state.modal
       });
@@ -238,7 +251,7 @@ class StockA extends Component {
       }
 
 // Method to create checkboxes for work orders that have the correct in shop status
-      woCheckBox(woStatus, id, wo) {
+      woCheckBox(woStatus, id, wo, item, qty) {
         if (woStatus === this.state.woStatusValue){
           this.setState({
             [id]:false
@@ -246,7 +259,8 @@ class StockA extends Component {
             return (
               <input
                 name={id}
-                value={wo}
+                form='submitForm'
+                value={'WO: ' + wo + ' Item: ' + item + ' Qty: ' + qty}
                 type="checkbox"
                 defaultChecked={this.state[id]}
                 onChange={this.handleChange} />
@@ -290,7 +304,10 @@ class StockA extends Component {
                     <img src={logo} className="main-logo" alt="logo" />
                 </div>
             <h1 className="display-4">Shop Schedule for {this.state.scheduleName}</h1>
-            <Button title="Mark Step Complete for Selected WO(s)" color="warning" className="update-button" onClick={this.handleClick}>Update Selected</Button>
+            <Form className='updateWorkOrders' id="submitForm" onSubmit={this.handleClick} action=''>
+              
+              <Button autoFocus={true} type='submit' value='submit' color='warning' name='Submit' className = 'update-button' title='Mark Step Complete for Selected WO(s)'>Update Selected</Button>
+            </Form>
             <span className="fa fa-clock-o"></span><span> Last Updated: </span><Timestamp time={new Date()} format='time' />
             </div>
             <div className="report">
@@ -306,7 +323,7 @@ class StockA extends Component {
             />
             </div>
 
-            <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+            <Modal autoFocus={false} isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
               <ModalHeader toggle={this.toggle}><span className="fa fa-exclamation-circle"></span> Verification</ModalHeader>
               <ModalBody>
                 <p className="wo-warning">Are you sure you want to update status of these work orders?</p>
@@ -317,8 +334,10 @@ class StockA extends Component {
                 </ul>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onClick={this.updateWo}>Update Status</Button>{' '}
-                <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+                <Form id="finalSubmit" onSubmit={this.updateWo}>
+                  <Button type="submit" autoFocus={true} color="primary" onClick={this.updateWo}>Update Status</Button>{' '}
+                  <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+                </Form>
               </ModalFooter>
             </Modal>
 

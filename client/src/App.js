@@ -7,6 +7,7 @@ import StockA from "./pages/StockA";
 import CFA from "./pages/CFA";
 import Packing from "./pages/Packing";
 import PackingOnly from "./pages/PackingOnly";
+import Design from "./pages/Design";
 
 const App = () => (
   <Router>
@@ -18,6 +19,7 @@ const App = () => (
       <Route exact path="/4" component={CFA} />
       <Route exact path="/5" component={Packing} />
       <Route exact path="/6" component={PackingOnly} />
+      <Route exact path="/7" component={Design} />
     </Switch>
   </Router>
 )
