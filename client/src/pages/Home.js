@@ -6,6 +6,7 @@ import ReactInterval from 'react-interval';
 import Timestamp from 'react-timestamp';
 const FieldRenders = require('./FieldRenders.js');
 
+var x = 0;
 
 
 class Home extends Component {
@@ -32,6 +33,10 @@ class Home extends Component {
     }
 
     componentDidMount() {
+        //document.body.style.cursor = 'wait';
+        x += 1;
+        console.log('mount ' + x);
+
         fetch("/netsuite")
           .then(res => res.json())
           .then(
@@ -82,6 +87,9 @@ class Home extends Component {
                 
               };
               // console.log("filtered data:" + JSON.stringify(filteredDataObject));
+
+              //document.body.style.cursor = 'default';
+
               this.setState({
                 data: filteredDataObject
               })
@@ -96,11 +104,17 @@ class Home extends Component {
           )
       }  
 
+    //   componentDidUpdate() {
+    //     document.body.style.cursor = 'default';
+    //   }
+  
+
   render() {
     return (
         <div>
         <ReactInterval timeout={600000} enabled={true}
           callback={() => {
+            document.body.style.cursor = 'wait';
             fetch("/netsuite")
           .then(res => res.json())
           .then(
