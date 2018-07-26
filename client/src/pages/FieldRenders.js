@@ -43,13 +43,25 @@ const fieldRenders = {
     },
     drawing: function(props) {
         if (props.value === "" | props.value === undefined | props.value === null){
-            console.log('drawing link: ' + props.value);
+            //console.log('drawing link: ' + props.value);
             return props.value;
         } else {
-            console.log('drawing link: ' + props.value);
+            //console.log('drawing link: ' + props.value);
 		return (
 			<span title={props.value}>
-				<a href={props.value} target="_blank"><span className="fa fa-search-plus"></span></a>
+				<a href={props.value} target="_blank"><span className="fa fa-picture-o"></span></a>
+			</span>
+        );
+        }
+    },
+    labels: function(props) {
+        if (props.value === "" | props.value === undefined | props.value === null){
+            return props.value;
+        } else {
+            
+		return (
+			<span title={props.value}>
+				<a href={props.value} target="_blank"><span className="fa fa-tag"></span></a>
 			</span>
         );
         }
@@ -148,3 +160,4 @@ module.exports.note = fieldRenders.note;
 module.exports.icon = fieldRenders.icon;
 module.exports.date = fieldRenders.date;
 module.exports.drawing = fieldRenders.drawing;
+module.exports.labels = fieldRenders.labels;

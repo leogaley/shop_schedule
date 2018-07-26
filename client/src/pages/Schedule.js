@@ -40,6 +40,7 @@ function dataMapping(data, clickWO, woCheckBox) {
         desc:data[i].columns.displayname,
         note:data[i].columns.memo,
         drawing:data[i].columns.custbody_shop_drawing_link,
+        labels:data[i].columns.custbody_work_order_label_link,
         icons:iconCode,
         qty:data[i].columns.quantity,
         duedate:data[i].columns.enddate,
@@ -61,11 +62,9 @@ function workOrderLink(id, wo, clickWO) {
     )
 };
 
-const searchIds = [
-  0,0,0,0,0,0,0,"2501"
-];
 
-class Design extends Component {
+
+class Schedule extends Component {
 
     constructor(props){
         super(props);
@@ -74,11 +73,6 @@ class Design extends Component {
         var id = props.match.params.id;
 
         this.state = {
-            //reportId: "2501", // edit this to change which report populates the table
-            //reportId: searchIds[props.match.params.id],
-            //statusField: "custbody178", // edit this to change which status gets updated
-            //scheduleName: "Design/Engineering", // edit this to change department name for heading
-            //woStatusValue: "Ready for Shop", // edit this to change the filter that determines if a checkbox shows up
             reportId: scheduleArray[id].reportId,
             statusField: scheduleArray[id].statusField,
             scheduleName: scheduleArray[id].scheduleName,
@@ -96,6 +90,8 @@ class Design extends Component {
                 { name: 'desc', displayName: "Description", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---" },
                 { name: 'note', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.note },
                 { name: 'drawing', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.drawing },
+                { name: 'labels', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.labels },
+
                 { name: 'icons', displayName: "*SH Here?", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.icon },
                 { name: 'qty', displayName: "Quantity", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---" },
                 { name: 'duedate', displayName: "Due Date", inputFilterable: true, exactFilterable: true, sortable: false, emptyDisplay: "---", render: FieldRenders.date },
@@ -325,7 +321,7 @@ class Design extends Component {
     return (
         <div>
         {/* Reloads data every 10 minutes   */}
-        <ReactInterval timeout={60000} enabled={true}
+        <ReactInterval timeout={600000} enabled={true}
           callback={this.getSchedule} />
 
 
@@ -407,4 +403,4 @@ class Design extends Component {
   }
 }
 
-export default Design;
+export default Schedule;

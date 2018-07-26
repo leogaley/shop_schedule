@@ -164,7 +164,7 @@ class Machining extends Component {
             data: {"workorders": woArray}
           })
           .then(function (response) {
-            console.log(response);
+            console.log('Update WO:' + response);
             window.location.reload();
           })
           .catch(function (error) {
