@@ -114,6 +114,8 @@ function getAll(req, res) {
       if (error){
         console.log(error);
       }
+      console.log('Body of response:');
+      console.log(body);
       res.send(body);
     });
   }
