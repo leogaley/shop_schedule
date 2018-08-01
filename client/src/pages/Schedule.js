@@ -137,7 +137,9 @@ class Schedule extends Component {
 
               this.setState({
                 data: dataMapping(result, this.handleClickWO, this.woCheckBox),
-                message:'Loading the orders!'
+                message:'Loading the orders!',
+                selectedIds:[],
+                selectedWos:[]
               })
               document.body.style.cursor = 'default';
             },
@@ -149,6 +151,7 @@ class Schedule extends Component {
             }
           )
     }
+
 
     getSnapshotBeforeUpdate() {
         console.log('GetSnapshot');
