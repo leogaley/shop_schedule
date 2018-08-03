@@ -65,6 +65,18 @@ const fieldRenders = {
 			</span>
         );
         }
+    },
+    instructions: function(props) {
+        if (props.value === "" | props.value === undefined | props.value === null){
+            return props.value;
+        } else {
+            
+		return (
+			<span title={props.value}>
+				<a href={props.value} target="_blank"><span className="fa fa-delicious"></span></a>
+			</span>
+        );
+        }
 	},
 	icon: function(props) {
 		switch (props.value){
@@ -161,3 +173,4 @@ module.exports.icon = fieldRenders.icon;
 module.exports.date = fieldRenders.date;
 module.exports.drawing = fieldRenders.drawing;
 module.exports.labels = fieldRenders.labels;
+module.exports.instructions = fieldRenders.instructions;

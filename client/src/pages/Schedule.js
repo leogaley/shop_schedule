@@ -41,6 +41,7 @@ function dataMapping(data, clickWO, woCheckBox) {
         note:data[i].columns.memo,
         drawing:data[i].columns.custbody_shop_drawing_link,
         labels:data[i].columns.custbody_work_order_label_link,
+        instructions:data[i].columns.custbody_assembly_instructions_link,
         icons:iconCode,
         qty:data[i].columns.quantity,
         duedate:data[i].columns.enddate,
@@ -91,6 +92,7 @@ class Schedule extends Component {
                 { name: 'note', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.note },
                 { name: 'drawing', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.drawing },
                 { name: 'labels', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.labels },
+                { name: 'instructions', displayName: "", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.instructions },
 
                 { name: 'icons', displayName: "*SH Here?", inputFilterable: true, exactFilterable: false, sortable: false, render: FieldRenders.icon },
                 { name: 'qty', displayName: "Quantity", inputFilterable: true, exactFilterable: false, sortable: false, emptyDisplay: "---" },
